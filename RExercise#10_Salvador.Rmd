@@ -1,0 +1,129 @@
+---
+title: "RExercise10_Salvador"
+author: "Crizalin Wilma Salvador"
+date: "2026-11-27"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### PART A - 
+
+Question 1: what is the output of each line? Explain briefly with your own words.
+```{r}
+m <- matrix(1:6, nrow = 2)
+
+apply(m, 1, sum)
+apply(m, 2, sum)
+class(lapply(1:3, function(i) i^2))
+sapply(1:3, function(i) i^2)
+sapply(c('a', 'bb', 'ccc'), nchar)
+mapply(function(x, y) x * y, 1:3, 4:6)
+tapply(c(10, 20, 30, 40), c('u', 'v', 'u', 'v'), sum)
+```
+```
+ANSWER: When R executes m <- matrix(1:6, nrow = 2), it arranges the numbers 1 through 6 column-by-column into 2 rows and 3 columns, placing [1, 3, 5] in the first row and [2, 4, 6] in the second. Running apply(m, 1, sum) sums across each row (MARGIN = 1), producing 9 and 12, while apply(m, 2, sum) sums down each column (MARGIN = 2), returning 3, 7, and 11.
+
+Question 2: Use this data for b.1 and b.2
+```{r}
+scores <- matrix(c(70, 85, 90,
+                   60, 75, 80,
+                   88, 92, 79),
+                 nrow = 3, byrow = TRUE,
+                 dimnames = list(c('Ana', 'Ben', 'Cara'), c('Math', 'Sci', 'Eng')))
+ 
+temps <- list(Mon = c(30, 32, 31), Tue = c(29, 33), Wed = c(31, 34, 35, 30))
+```
+
+b.1 Find (a) each student’s average, (b) each subject’s highest score, and (c) the name of the best subject for each student. Use apply function.
+
+ANSWER:
+```{r}
+apply(scores, 1, mean)
+
+apply(scores, 2, max)
+
+apply(scores, 1, function(x) names(which.max(x)))
+```
+
+
+b.2 For temps, compute the mean, the number of readings, and the range for each day. Use lapply() for one, sapply() for another, and vapply() for a third, and explain why the range result is a matrix.
+
+ANSWER:
+```{r}
+lapply(temps, mean)
+
+vapply(temps, length, integer(1))
+
+sapply(temps, range)
+```
+
+
+Question 3:
+
+Two loans have principals 1000 and 2000, rates 5% and 4%, and terms 2 and 3 years. Compute the final amount p * (1 + r)^n for each with mapply(). Then rewrite it so that the rate is a fixed 4.5% using MoreArgs.
+
+ANSWER: 
+```{r}
+mapply(function(p, r, n) p * (1 + r)^n,
+       p = c(1000, 2000),
+       r = c(0.05, 0.04),
+       n = c(2, 3))
+
+mapply(function(p, n, r) p * (1 + r)^n,
+       p = c(1000, 2000),
+       n = c(2, 3),
+       MoreArgs = list(r = 0.045))
+```
+
+Question 4: Use iris dataset. (a) Mean Sepal.Length of iris for each species. (b) The number of cars in mtcars for every combination of cyl and am. (c) Mean mpg per cyl, ignoring missing values (add na.rm = TRUE)
+
+ANSWER: 
+```{r}
+tapply(iris$Sepal.Length, iris$Species, mean)
+
+tapply(mtcars$mpg, list(mtcars$cyl, mtcars$am), length)
+
+tapply(mtcars$mpg, mtcars$cyl, mean, na.rm = TRUE)
+```
+
+### Part B — Debugging
+
+Question 5: Each snippet has a mistake. Find it, explain it in one sentence and fix it.
+
+```{r}
+sapply(list(a = 1:3, b = 4:6), mean)
+```
+ANSWER: Adding parentheses () immediately calls mean() with no arguments instead of passing the function object itself to sapply().
+
+b. expected one mean per column of a 3 x 2 matrix, got three numbers apply(matrix(1:6, nrow = 3), 1, mean)
+
+```{r}
+apply(matrix(1:6, nrow = 3), 1, mean)
+```
+ANSWER: Setting MARGIN = 1 computes the mean across rows instead of columns, which requires MARGIN = 2.
+
+c. wanted the class of each column
+df <- data.frame(n = c(1, 2), s = c('a', 'b'))
+apply(df, 2, class)
+
+```{r}
+df <- data.frame(n = c(1, 2), s = c('a', 'b'))
+sapply(df, class)
+```
+
+ANSWER: apply() converts the entire data frame into a single character matrix first, turning all columns into "character" before checking their classes.
+
+Question 6: Explain in your own words the difference between lapply() and sapply(). When would you choose vapply() instead?
+
+ANSWER: lapply() always returns a list of the same length as the input, whereas sapply() wraps lapply() and tries to simplify the output into a vector, matrix, or array whenever all elements share matching dimensions. You should choose vapply() inside scripts or functions when you need strict type safety, as it forces you to declare the expected output type and length (such as numeric(1)) and throws an immediate error if an unexpected type appears.
+
+A colleague computes group means with lapply(split(x, g), mean). Which function gives the same result in one call, and what does it return?
+
+ANSWER: tapply(x, g, mean) performs the exact same calculation in one call and returns a named 1D array (which behaves like a named numeric vector) indexed by the unique levels of g.
+
+
