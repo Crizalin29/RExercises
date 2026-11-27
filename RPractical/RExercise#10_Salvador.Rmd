@@ -44,62 +44,35 @@ b.1 Find (a) each student’s average, (b) each subject’s highest score, and (
 
 ANSWER:
 ```{r}
-# (a) Each student's average (across rows, MARGIN = 1)
 apply(scores, 1, mean)
-# Output:
-#      Ana      Ben     Cara 
-# 81.66667 71.66667 86.33333 
 
-# (b) Each subject's highest score (down columns, MARGIN = 2)
-apply(scores, 2, max)
-# Output:
-# Math  Sci  Eng 
-#   88   92   90 
-
-# (c) Name of the best subject for each student
 apply(scores, 1, function(x) names(which.max(x)))
-# Output:
-#   Ana   Ben  Cara 
-# "Eng" "Eng" "Sci"
 ```
 
 b.2 For temps, compute the mean, the number of readings, and the range for each day. Use lapply() for one, sapply() for another, and vapply() for a third, and explain why the range result is a matrix.
 
 ANSWER: 
 ```{r}
-# 1. Mean for each day using lapply()
 lapply(temps, mean)
-# Output: $Mon [1] 31, $Tue [1] 31, $Wed [1] 32.5
 
-# 2. Number of readings using vapply()
 vapply(temps, length, integer(1))
-# Output: Mon 3, Tue 2, Wed 4
 
-# 3. Range for each day using sapply()
 sapply(temps, range)
-# Output:
-#      Mon Tue Wed
-# [1,]  30  29  30
-# [2,]  32  33  35
 ```
 
 Question 3: Two loans have principals 1000 and 2000, rates 5% and 4%, and terms 2 and 3 years. Compute the final amount p * (1 + r)^n for each with mapply(). Then rewrite it so that the rate is a fixed 4.5% using MoreArgs.
 
 ANSWER:
 ```{r}
-# Varying rates (5% and 4%)
 mapply(function(p, r, n) p * (1 + r)^n,
        p = c(1000, 2000),
        r = c(0.05, 0.04),
        n = c(2, 3))
-# Output: [1] 1102.500 2249.728
 
-# Fixed rate at 4.5% using MoreArgs
 mapply(function(p, n, r) p * (1 + r)^n,
        p = c(1000, 2000),
        n = c(2, 3),
        MoreArgs = list(r = 0.045))
-# Output: [1] 1092.025 2282.332
 ```
 
 
@@ -108,25 +81,11 @@ Question 4: Use iris dataset. (a) Mean Sepal.Length of iris for each species. (b
 
 ANSWER:
 ```{r}
-# (a) Mean Sepal.Length of iris for each species
 tapply(iris$Sepal.Length, iris$Species, mean)
-# Output:
-#     setosa versicolor  virginica 
-#      5.006      5.936      6.588 
 
-# (b) Number of cars in mtcars for every combination of cyl and am
 tapply(mtcars$mpg, list(mtcars$cyl, mtcars$am), length)
-# Output:
-#    0 1
-# 4  3 8
-# 6  4 3
-# 8 12 2
 
-# (c) Mean mpg per cyl, ignoring missing values
 tapply(mtcars$mpg, mtcars$cyl, mean, na.rm = TRUE)
-# Output:
-#        4        6        8 
-# 26.66364 19.74286 15.10000
 ```
 
 ### PART B - Debugging
